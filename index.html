@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#c9a84c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="وردي اليومي">
+<title>وردي اليومي</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8d5a0;
+    --gold-dark: #8a6d20;
+    --bg: #0d1117;
+    --bg2: #141b24;
+    --bg3: #1a2332;
+    --text: #f0e8d5;
+    --text-muted: #8a7d6a;
+    --green: #2d6a4f;
+    --green-light: #52b788;
+    --red: #7b2d2d;
+    --shadow: 0 8px 32px rgba(0,0,0,0.5);
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    overflow-x: hidden;
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(201,168,76,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    padding: 30px 20px 20px;
+  }
+
+  .header-ornament {
+    font-family: 'Amiri', serif;
+    color: var(--gold);
+    font-size: 1.4rem;
+    opacity: 0.6;
+    letter-spacing: 8px;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Amiri', serif;
+    font-size: 2.6rem;
+    color: var(--gold);
+    text-shadow: 0 0 40px rgba(201,168,76,0.3);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .header-subtitle {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 6px;
+    font-weight: 300;
+  }
+
+  /* Install Banner */
+  #install-banner {
+    display: none;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    align-items: center;
+    gap: 12px;
+  }
+  #install-banner.show { display: flex; }
+  #install-banner span { flex: 1; color: #0d1117; font-weight: 700; font-size: 0.95rem; }
+  #install-banner button {
+    background: #0d1117;
+    color: var(--gold);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 0.9rem;
+  }
+  #install-close {
+    background: none !important;
+    color: rgba(0,0,0,0.5) !important;
+    padding: 4px 8px !important;
+    font-size: 1.2rem !important;
+  }
+
+  /* Clock */
+  .clock-widget {
+    background: var(--bg2);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 16px;
+    padding: 18px;
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .clock-widget::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  #clock-time {
+    font-family: 'Amiri', serif;
+    font-size: 3rem;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(201,168,76,0.4);
+    letter-spacing: 4px;
+  }
+  #clock-date { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+  #prayer-status {
+    margin-top: 10px;
+    padding: 6px 14px;
+    background: rgba(201,168,76,0.1);
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--gold-light);
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 18px;
+    background: var(--bg2);
+    padding: 5px;
+    border-radius: 12px;
+    border: 1px solid rgba(201,168,76,0.15);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s;
+  }
+  .tab-btn.active {
+    background: var(--gold);
+    color: #0d1117;
+    font-weight: 700;
+    box-shadow: 0 2px 12px rgba(201,168,76,0.3);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Azkar */
+  .azkar-section { margin-bottom: 24px; }
+  .section-title {
+    font-family: 'Amiri', serif;
+    font-size: 1.4rem;
+    color: var(--gold);
+    margin-bottom: 14px;
+    padding-right: 12px;
+    border-right: 3px solid var(--gold);
+  }
+
+  .zikr-card {
+    background: var(--bg2);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 10px;
+    position: relative;
+    transition: all 0.3s;
+    cursor: pointer;
+    user-select: none;
+  }
+  .zikr-card:active { transform: scale(0.99); }
+  .zikr-card.done {
+    opacity: 0.5;
+    border-color: rgba(82,183,136,0.3);
+    background: rgba(82,183,136,0.05);
+  }
+  .zikr-card.done::after {
+    content: '✓';
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--green-light);
+    font-size: 1.4rem;
+  }
+  .zikr-text {
+    font-family: 'Amiri', serif;
+    font-size: 1.15rem;
+    line-height: 2;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .zikr-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .zikr-count-badge {
+    background: rgba(201,168,76,0.15);
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    border: 1px solid rgba(201,168,76,0.3);
+  }
+  .counter-controls { display: flex; align-items: center; gap: 10px; }
+  .counter-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.3);
+    background: transparent;
+    color: var(--gold);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .counter-btn:active { background: rgba(201,168,76,0.2); transform: scale(0.9); }
+  .counter-display {
+    font-family: 'Amiri', serif;
+    font-size: 1.2rem;
+    color: var(--text);
+    min-width: 40px;
+    text-align: center;
+  }
+  .progress-bar {
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+
+  /* Progress summary */
+  .progress-summary {
+    background: var(--bg2);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .progress-circle { width: 56px; height: 56px; flex-shrink: 0; }
+  .progress-circle svg { transform: rotate(-90deg); }
+  .progress-info h4 { color: var(--text); font-size: 0.9rem; margin-bottom: 4px; }
+  .progress-info p { color: var(--text-muted); font-size: 0.82rem; }
+
+  /* Tasbih */
+  .tasbih-widget {
+    background: var(--bg2);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 20px;
+    padding: 28px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .tasbih-count {
+    font-family: 'Amiri', serif;
+    font-size: 5rem;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(201,168,76,0.3);
+    line-height: 1;
+    margin: 16px 0;
+  }
+  .tasbih-btn {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    border: none;
+    color: #0d1117;
+    font-size: 2.8rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 6px 20px rgba(201,168,76,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+    touch-action: manipulation;
+  }
+  .tasbih-btn:active {
+    transform: scale(0.91);
+    box-shadow: 0 2px 8px rgba(201,168,76,0.2);
+  }
+  .tasbih-label { color: var(--text-muted); font-size: 0.9rem; margin-top: 14px; }
+  .tasbih-reset {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-muted);
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    margin-top: 14px;
+    transition: all 0.2s;
+  }
+  .tasbih-reset:active { border-color: rgba(255,255,255,0.3); color: var(--text); }
+
+  /* Alarms */
+  .alarm-form {
+    background: var(--bg2);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .alarm-form h3 { font-family: 'Amiri', serif; color: var(--gold); font-size: 1.2rem; margin-bottom: 16px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { color: var(--text-muted); font-size: 0.85rem; }
+  .form-group select, .form-group input {
+    background: var(--bg3);
+    border: 1px solid rgba(201,168,76,0.2);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+  }
+  .form-group select:focus, .form-group input:focus { border-color: var(--gold); }
+  .days-select { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .day-pill {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(201,168,76,0.25);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.82rem;
+    transition: all 0.2s;
+  }
+  .day-pill.selected { background: rgba(201,168,76,0.2); color: var(--gold); border-color: var(--gold); }
+  .btn-primary {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    border: none;
+    border-radius: 10px;
+    color: #0d1117;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(201,168,76,0.25);
+  }
+  .btn-primary:active { opacity: 0.85; transform: scale(0.99); }
+
+  .alarm-list h3 { font-family: 'Amiri', serif; color: var(--gold); font-size: 1.2rem; margin-bottom: 14px; }
+  .alarm-item {
+    background: var(--bg2);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .alarm-item.inactive { opacity: 0.5; }
+  .alarm-time-display { font-family: 'Amiri', serif; font-size: 1.7rem; color: var(--gold); min-width: 80px; }
+  .alarm-info { flex: 1; }
+  .alarm-label-text { font-size: 0.95rem; color: var(--text); margin-bottom: 3px; }
+  .alarm-days-display { font-size: 0.78rem; color: var(--text-muted); }
+  .alarm-toggle {
+    width: 44px; height: 24px;
+    background: var(--bg3);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  .alarm-toggle.on { background: var(--gold); }
+  .alarm-toggle::after {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    background: white;
+    border-radius: 50%;
+    top: 2px; left: 2px;
+    transition: transform 0.3s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+  .alarm-toggle.on::after { transform: translateX(20px); }
+  .alarm-delete {
+    background: none;
+    border: none;
+    color: var(--red);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+
+  /* Notification */
+  .notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-120px);
+    background: var(--bg2);
+    border: 1px solid var(--gold);
+    border-radius: 14px;
+    padding: 16px 22px;
+    z-index: 9999;
+    text-align: center;
+    max-width: 340px;
+    width: 90%;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .notification.show { transform: translateX(-50%) translateY(0); }
+  .notif-icon { font-size: 2rem; margin-bottom: 8px; }
+  .notif-title { font-family: 'Amiri', serif; color: var(--gold); font-size: 1.2rem; margin-bottom: 6px; }
+  .notif-body { color: var(--text-muted); font-size: 0.88rem; }
+  .notif-close {
+    margin-top: 12px;
+    padding: 6px 20px;
+    background: var(--gold);
+    color: #0d1117;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  .empty-state span { font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.5; }
+
+  @media (max-width: 420px) {
+    h1 { font-size: 2rem; }
+    #clock-time { font-size: 2.4rem; }
+    .form-row { grid-template-columns: 1fr; }
+    .tasbih-count { font-size: 4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="notification" class="notification">
+  <div class="notif-icon">🕌</div>
+  <div class="notif-title" id="notif-title">تذكير بالأذكار</div>
+  <div class="notif-body" id="notif-body">حان وقت أذكارك اليومية</div>
+  <button class="notif-close" onclick="closeNotif()">حسناً</button>
+</div>
+
+<div class="container">
+  <header>
+    <div class="header-ornament">﷽</div>
+    <h1>وردي اليومي</h1>
+    <div class="header-subtitle">أذكار الصباح والمساء من الجامع الصحيح</div>
+  </header>
+
+  <!-- Install Banner -->
+  <div id="install-banner">
+    <span>📱 ثبّت التطبيق على هاتفك!</span>
+    <button onclick="installApp()">تثبيت</button>
+    <button id="install-close" onclick="document.getElementById('install-banner').classList.remove('show')">✕</button>
+  </div>
+
+  <div class="clock-widget">
+    <div id="clock-time">00:00:00</div>
+    <div id="clock-date"></div>
+    <div id="prayer-status">⏰ جارٍ تحميل الوقت...</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('azkar')">📖 الأذكار</button>
+    <button class="tab-btn" onclick="switchTab('tasbih')">📿 المسبحة</button>
+    <button class="tab-btn" onclick="switchTab('alarms')">🔔 المنبه</button>
+  </div>
+
+  <!-- Azkar Tab -->
+  <div id="tab-azkar" class="tab-content active">
+    <div class="progress-summary">
+      <svg class="progress-circle" viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/>
+        <circle id="progress-arc" cx="30" cy="30" r="24" fill="none" stroke="#c9a84c" stroke-width="4"
+          stroke-dasharray="150.8" stroke-dashoffset="150.8" stroke-linecap="round"/>
+      </svg>
+      <div class="progress-info">
+        <h4>تقدمك اليوم</h4>
+        <p id="progress-text">0 من 0 ذكر مكتمل</p>
+      </div>
+    </div>
+    <div class="azkar-section">
+      <div class="section-title">أذكار الصباح والمساء</div>
+      <div id="azkar-list"></div>
+    </div>
+  </div>
+
+  <!-- Tasbih Tab -->
+  <div id="tab-tasbih" class="tab-content">
+    <div class="tasbih-widget">
+      <div style="color:var(--text-muted);font-size:0.9rem">سبحان الله وبحمده</div>
+      <div class="tasbih-count" id="tasbih-num">0</div>
+      <button class="tasbih-btn" onclick="tapTasbih()">☝️</button>
+      <div class="tasbih-label" id="tasbih-label">اضغط للتسبيح</div>
+      <br>
+      <button class="tasbih-reset" onclick="resetTasbih()">إعادة ضبط</button>
+    </div>
+    <div class="azkar-section">
+      <div class="section-title">الأذكار للعدّ</div>
+      <div id="count-azkar-list"></div>
+    </div>
+  </div>
+
+  <!-- Alarms Tab -->
+  <div id="tab-alarms" class="tab-content">
+    <div class="alarm-form">
+      <h3>🔔 إضافة منبه جديد</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>الوقت</label>
+          <input type="time" id="alarm-time" value="05:00">
+        </div>
+        <div class="form-group">
+          <label>نوع الذكر</label>
+          <select id="alarm-type">
+            <option value="صباح">أذكار الصباح</option>
+            <option value="مساء">أذكار المساء</option>
+            <option value="عام">تذكير عام</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label>الأيام</label>
+        <div class="days-select" id="days-select">
+          <button class="day-pill selected" data-day="0">الأحد</button>
+          <button class="day-pill selected" data-day="1">الاثنين</button>
+          <button class="day-pill selected" data-day="2">الثلاثاء</button>
+          <button class="day-pill selected" data-day="3">الأربعاء</button>
+          <button class="day-pill selected" data-day="4">الخميس</button>
+          <button class="day-pill selected" data-day="5">الجمعة</button>
+          <button class="day-pill selected" data-day="6">السبت</button>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="addAlarm()">إضافة المنبه</button>
+    </div>
+    <div class="alarm-list">
+      <h3>المنبهات المضافة</h3>
+      <div id="alarm-list-container"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const azkar = [
+  { id:1, text:"لا إِلَهَ إِلَّا اللهُ وحدَهُ لا شَريكَ لَهُ، لَهُ الملكُ ولَهُ الحَمدُ وهو على كُلِّ شَيءٍ قديرٌ", total:1, note:"مرة واحدة" },
+  { id:2, text:"أَصبَحتُ أُثْني عليكَ حَمَدًا، وأَشهَدُ أَنْ لا إِلَهَ إِلَّا اللهُ", total:3, note:"ثلاث مرات" },
+  { id:3, text:"سُبحانَ اللَّهِ وبِحَمده", total:100, note:"مئة مرة" },
+  { id:4, text:"سُبحانَ اللَّهِ وبِحَمده، سُبحانَ اللَّهِ العَظيم", total:100, note:"مئة مرة" },
+  { id:5, text:"يا حَيُّ يا قَيُّومُ، بِرَحمَتِكَ أَستَغيثُ، أَصلِحْ لي شَأني كُلَّه، ولا تَكِلْني إلى نَفسي طَرفَةَ عَينٍ", total:1, note:"مرة واحدة" },
+  { id:6, text:"اللهُمَّ إِنِّي أَسأَلُكَ العافيةَ، في الدُّنيا والآخِرة، اللهُمَّ إِنِّي أَسأَلُكَ العَفوَ والعافيةَ، في ديني ودُنيايَ، وأهلي ومالي، اللهُمَّ استُرْ عَوراتي، وآمِنْ رَوعاتي", total:1, note:"مرة واحدة" },
+  { id:7, text:"اللهُمَّ فاطِرَ السَّماوات والأرض، عالِمَ الغَيب والشَّهادة، رَبَّ كُلِّ شَيءٍ ومَليكَه، أَشهَدُ أَنْ لا إِلَهَ إِلَّا أنتَ، أَعوذُ بكَ من شَرِّ نَفسي، وشَرِّ الشَّيطانِ وشِركَه", total:1, note:"مرة واحدة" },
+  { id:8, text:"أَعوذُ بِكَلِماتِ اللَّهِ التَّامَّات من شَرِّ ما خَلَقَ", total:3, note:"ثلاث مرات (يُقال في المساء)" },
+  { id:9, text:"سيِّدُ الاستِغفار: اللهُمَّ أَنتَ رَبِّي لا إِلَهَ إِلَّا أنتَ، خَلَقتَني وأنا عَبدُكَ، وأنا على عَهدِكَ ووَعدِكَ ما استَطَعتُ، أَعوذُ بكَ من شَرِّ ما صَنَعتُ، أَبوءُ لكَ بنِعمَتِكَ علَيَّ، وأَبوءُ لكَ بذَنبي فاغفِرْ لي", total:1, note:"مرة واحدة" },
+  { id:10, text:"سُبحانَ اللَّهِ وبِحَمده، عَدَدَ خَلقِه، ورِضا نَفسِه، وزِنَةَ عَرشِه، ومِدادَ كَلِماتِه", total:3, note:"ثلاث مرات (يُقال في الصباح)" },
+  { id:11, text:"بِاسمِ اللَّهِ الذي لا يَضُرُّ مَعَ اسمِه شَيءٌ في الأرضِ ولا في السَّماءِ وهو السَّميعُ العَليمُ", total:3, note:"ثلاث مرات" },
+  { id:12, text:"اللهُمَّ بكَ أصبَحنا، وبكَ أمسَينا، وبكَ نَحيا، وبكَ نَموتُ، وإليكَ النُّشورُ", total:1, note:"مرة واحدة (في الصباح)" },
+  { id:13, text:"أَصبَحنا على فِطرةِ الإسلام وكَلمةِ الإخلاصِ ودينِ نَبيِّنا مُحمَّد ﷺ ومِلَّةِ أبينا إبراهيمَ حَنيفًا مُسلِمًا وما أنا مِنَ المُشركين", total:1, note:"مرة واحدة" }
+];
+
+// State
+let counts = {};
+let alarms = JSON.parse(localStorage.getItem('azkar_alarms') || '[]');
+let tasbihCount = parseInt(localStorage.getItem('tasbih_count') || '0');
+
+const savedCounts = JSON.parse(localStorage.getItem('azkar_counts') || '{}');
+const savedDate = localStorage.getItem('azkar_date');
+const today = new Date().toDateString();
+if (savedDate === today) {
+  counts = savedCounts;
+} else {
+  azkar.forEach(z => counts[z.id] = 0);
+  localStorage.setItem('azkar_date', today);
+}
+azkar.forEach(z => { if (counts[z.id] === undefined) counts[z.id] = 0; });
+
+// ===== CLOCK =====
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clock-time').textContent = `${h}:${m}:${s}`;
+
+  const days = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  document.getElementById('clock-date').textContent =
+    `${days[now.getDay()]}، ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+  const hour = now.getHours();
+  let status = '';
+  if (hour >= 4 && hour < 7) status = '🌅 وقت أذكار الصباح';
+  else if (hour >= 7 && hour < 12) status = '☀️ الضحى';
+  else if (hour >= 12 && hour < 15) status = '🕐 بعد الظهر';
+  else if (hour >= 15 && hour < 18) status = '🌤 وقت أذكار المساء';
+  else if (hour >= 18 && hour < 20) status = '🌇 المغرب';
+  else status = '🌙 المساء';
+  document.getElementById('prayer-status').textContent = status;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ===== TABS =====
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ===== AZKAR RENDER =====
+function saveProgress() {
+  localStorage.setItem('azkar_counts', JSON.stringify(counts));
+}
+
+function updateProgress() {
+  const total = azkar.length;
+  const done = azkar.filter(z => counts[z.id] >= z.total).length;
+  document.getElementById('progress-text').textContent = `${done} من ${total} ذكر مكتمل`;
+  const pct = total > 0 ? done / total : 0;
+  const circumference = 150.8;
+  document.getElementById('progress-arc').style.strokeDashoffset = circumference * (1 - pct);
+}
+
+function renderAzkar() {
+  const list = document.getElementById('azkar-list');
+  list.innerHTML = '';
+  azkar.forEach(z => {
+    const done = counts[z.id] >= z.total;
+    const card = document.createElement('div');
+    card.className = 'zikr-card' + (done ? ' done' : '');
+    card.innerHTML = `
+      <div class="zikr-text">${z.text}</div>
+      <div class="zikr-meta">
+        <span class="zikr-count-badge">${z.note}</span>
+        <div class="counter-controls">
+          <button class="counter-btn" onclick="decrement(${z.id},event)">−</button>
+          <span class="counter-display" id="cnt-${z.id}">${counts[z.id]}/${z.total}</span>
+          <button class="counter-btn" onclick="increment(${z.id},event)">+</button>
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="fill-${z.id}" style="width:${Math.min(counts[z.id]/z.total*100,100)}%"></div>
+      </div>
+    `;
+    card.addEventListener('click', () => increment(z.id));
+    list.appendChild(card);
+  });
+  updateProgress();
+}
+
+function increment(id, e) {
+  if (e) e.stopPropagation();
+  const z = azkar.find(x => x.id === id);
+  if (!z || counts[id] >= z.total) return;
+  counts[id]++;
+  saveProgress();
+  document.getElementById('cnt-' + id).textContent = `${counts[id]}/${z.total}`;
+  document.getElementById('fill-' + id).style.width = `${Math.min(counts[id]/z.total*100,100)}%`;
+  if (counts[id] >= z.total) {
+    const card = document.getElementById('cnt-' + id).closest('.zikr-card');
+    card.classList.add('done');
+    showNotif('أحسنت! 🎉', 'أتممت: ' + z.text.substring(0, 30) + '...');
+  }
+  updateProgress();
+}
+
+function decrement(id, e) {
+  if (e) e.stopPropagation();
+  if (counts[id] <= 0) return;
+  counts[id]--;
+  saveProgress();
+  const z = azkar.find(x => x.id === id);
+  document.getElementById('cnt-' + id).textContent = `${counts[id]}/${z.total}`;
+  document.getElementById('fill-' + id).style.width = `${Math.min(counts[id]/z.total*100,100)}%`;
+  const card = document.getElementById('cnt-' + id).closest('.zikr-card');
+  card.classList.remove('done');
+  updateProgress();
+}
+
+// ===== TASBIH =====
+document.getElementById('tasbih-num').textContent = tasbihCount;
+
+function tapTasbih() {
+  tasbihCount++;
+  document.getElementById('tasbih-num').textContent = tasbihCount;
+  localStorage.setItem('tasbih_count', tasbihCount);
+  const labels = ['اضغط للتسبيح','سبحان الله','وبحمده','سبحان الله العظيم'];
+  document.getElementById('tasbih-label').textContent = labels[tasbihCount % labels.length];
+  if (tasbihCount % 33 === 0) showNotif('ما شاء الله! 📿', `وصلت إلى ${tasbihCount} تسبيحة`);
+}
+
+function resetTasbih() {
+  tasbihCount = 0;
+  document.getElementById('tasbih-num').textContent = 0;
+  document.getElementById('tasbih-label').textContent = 'اضغط للتسبيح';
+  localStorage.setItem('tasbih_count', 0);
+}
+
+// Tasbih azkar list
+function renderCountAzkar() {
+  const list = document.getElementById('count-azkar-list');
+  const countable = azkar.filter(z => z.total >= 3);
+  list.innerHTML = countable.map(z => `
+    <div class="zikr-card">
+      <div class="zikr-text">${z.text}</div>
+      <div class="zikr-meta">
+        <span class="zikr-count-badge">${z.note}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== ALARMS =====
+document.querySelectorAll('.day-pill').forEach(btn => {
+  btn.addEventListener('click', () => btn.classList.toggle('selected'));
+});
+
+function addAlarm() {
+  const time = document.getElementById('alarm-time').value;
+  const type = document.getElementById('alarm-type').value;
+  const days = [...document.querySelectorAll('.day-pill.selected')].map(b => parseInt(b.dataset.day));
+  if (!time || days.length === 0) { showNotif('تنبيه', 'الرجاء اختيار الوقت والأيام'); return; }
+  alarms.push({ id: Date.now(), time, type, days, active: true });
+  localStorage.setItem('azkar_alarms', JSON.stringify(alarms));
+  renderAlarms();
+  showNotif('تم الحفظ ✅', `تم إضافة منبه ${type} الساعة ${time}`);
+}
+
+function renderAlarms() {
+  const container = document.getElementById('alarm-list-container');
+  if (alarms.length === 0) {
+    container.innerHTML = '<div class="empty-state"><span>🔕</span>لا توجد منبهات مضافة</div>';
+    return;
+  }
+  const dayNames = ['أحد','إث','ثل','أر','خم','جم','سب'];
+  container.innerHTML = alarms.map(a => `
+    <div class="alarm-item ${a.active ? '' : 'inactive'}">
+      <div class="alarm-time-display">${a.time}</div>
+      <div class="alarm-info">
+        <div class="alarm-label-text">أذكار ${a.type}</div>
+        <div class="alarm-days-display">${a.days.map(d => dayNames[d]).join(' · ')}</div>
+      </div>
+      <div class="alarm-toggle ${a.active ? 'on' : ''}" onclick="toggleAlarm(${a.id})"></div>
+      <button class="alarm-delete" onclick="deleteAlarm(${a.id})">🗑</button>
+    </div>
+  `).join('');
+}
+
+function toggleAlarm(id) {
+  const a = alarms.find(x => x.id === id);
+  if (a) { a.active = !a.active; localStorage.setItem('azkar_alarms', JSON.stringify(alarms)); renderAlarms(); }
+}
+
+function deleteAlarm(id) {
+  alarms = alarms.filter(x => x.id !== id);
+  localStorage.setItem('azkar_alarms', JSON.stringify(alarms));
+  renderAlarms();
+}
+
+// Check alarms every minute
+function checkAlarms() {
+  const now = new Date();
+  const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const currentDay = now.getDay();
+  alarms.forEach(a => {
+    if (a.active && a.time === currentTime && a.days.includes(currentDay)) {
+      showNotif('🕌 تذكير بالأذكار', `حان وقت أذكار ${a.type}`);
+    }
+  });
+}
+setInterval(checkAlarms, 60000);
+
+// ===== NOTIFICATION =====
+let notifTimer;
+function showNotif(title, body) {
+  document.getElementById('notif-title').textContent = title;
+  document.getElementById('notif-body').textContent = body;
+  document.getElementById('notification').classList.add('show');
+  clearTimeout(notifTimer);
+  notifTimer = setTimeout(closeNotif, 3500);
+}
+function closeNotif() {
+  document.getElementById('notification').classList.remove('show');
+}
+
+// ===== PWA INSTALL =====
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').classList.add('show');
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      document.getElementById('install-banner').classList.remove('show');
+    });
+  }
+}
+
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(console.error);
+}
+
+// Init
+renderAzkar();
+renderCountAzkar();
+renderAlarms();
+</script>
+</body>
+</html>
